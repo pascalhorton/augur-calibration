@@ -1,0 +1,13 @@
+OUTPUT_DIR: ''
+
+# Global datasets
+PATH_WCOVER: ''
+PATH_CCILC: ''
+PATH_SOILDEPTH: ''
+PATH_SOILGRIDS: ''
+
+# LamaH dataset
+PATH_LAMAH: ''
+
+# Swiss data
+PATH_CH_CATCHMENTS: ''
