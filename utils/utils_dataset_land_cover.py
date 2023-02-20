@@ -10,7 +10,7 @@ def get_land_cover(dataset, raster_file, polygon, type):
     ----------
     dataset: str
         The dataset to extract the land cover from: cci or worldcover.
-    raster_file: str
+    raster_file: str|Path
         The path to the raster file of the selected dataset.
     polygon
         The polygon of interest.

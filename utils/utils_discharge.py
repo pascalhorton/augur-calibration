@@ -18,7 +18,7 @@ def get_value_return_periods(annual_max, ret_periods=None):
     A list of the discharge values for the given return periods. Default: [10, 20, 50]
     """
     if ret_periods is None:
-        ret_periods = [10, 20, 50]
+        ret_periods = [10, 30, 100]
     y_means = annual_max.mean()
     y_std = annual_max.std()
     b = np.sqrt(6.0) / math.pi * y_std
