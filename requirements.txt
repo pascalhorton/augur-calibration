@@ -1,0 +1,5 @@
+PyYAML
+geopandas
+pandas
+numpy
+rasterstats
