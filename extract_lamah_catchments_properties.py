@@ -50,6 +50,7 @@ df.reset_index(inplace=True, drop=True)
 # Convert units
 df['slope_mean'] = df['slope_mean'] / 1000
 
+# Extract catchment properties.
 for row in df.iterrows():
     catchment = row[1]
     print(catchment['name'])

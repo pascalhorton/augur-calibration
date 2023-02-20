@@ -7,7 +7,7 @@ def get_soil_content(raster_file, polygon):
 
     Parameters
     ----------
-    raster_file: str
+    raster_file: str|Path
         Path to the SoilGrid file.
     polygon: geometry
         Polygon for which to extract the soil properties.
@@ -25,7 +25,7 @@ def get_soil_depth(raster_file, polygon):
 
     Parameters
     ----------
-    raster_file: str
+    raster_file: str|Path
         Path to the SoilGrid file.
     polygon: geometry
         Polygon for which to extract the soil properties.
