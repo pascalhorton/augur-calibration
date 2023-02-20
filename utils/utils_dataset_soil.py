@@ -14,7 +14,7 @@ def get_soil_content(raster_file, polygon):
 
     Returns
     -------
-    The soil content of clay/sand, for example, in percent.
+    The soil fraction of clay/sand, for example ([0 .. 1]).
     """
     return 100 * zonal_stats(polygon, raster_file, nodata=-999)[0]['mean'] / 1000
 
