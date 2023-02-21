@@ -2,6 +2,23 @@ from rasterstats import zonal_stats
 import numpy as np
 
 
+def check_land_cover_total(catchment):
+    """
+    Check that the sum of land cover percentage sums to 100%.
+
+    Parameters
+    ----------
+    catchment: Pandas dataframe
+        Dataframe containing the land cover percentages
+    """
+    total = catchment['cover_farmland'] + catchment['cover_pasture'] + \
+            catchment['cover_forest'] + catchment['cover_settlement'] + \
+            catchment['cover_bare'] + catchment['cover_cryo']
+
+    if total != 100:
+        raise ValueError(f"The sum of land covers should be 100%. Here: {total}.")
+
+
 def get_land_cover(dataset, raster_file, polygon, type):
     """
     Get the land cover percent from a given dataset and for a provided polygon.

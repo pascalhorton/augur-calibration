@@ -28,9 +28,6 @@ def get_value_return_periods(annual_max, ret_periods=None):
     F_rps = np.ones(len(ret_periods)) - (np.ones(len(ret_periods)) / ret_periods)
     u_rps = -np.log(-np.log(F_rps))
 
-    prec_rps = []
-    for u in u_rps:
-        prec_rp = b * u + a
-        prec_rps.append(prec_rp)
+    prec_rps = b * u_rps + a
 
     return prec_rps
