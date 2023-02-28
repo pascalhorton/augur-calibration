@@ -52,16 +52,19 @@ def compute_hydrograph(catchment, soil_type, precipitation, cns, storm_duration=
     rain_runoff = pd.DataFrame.from_dict(dict_rr)
 
     # Hietogram
-    h_f = [0.18, 0.46, 0.23, 0.13]
+    hf = [0.18, 0.46, 0.23, 0.13]
 
-    # Time from start of rain to maximum outflow [h]
-    t_p = (storm_duration / 2 + 0.6 * 0.02 * math.pow(catchment['length_watercourse'], 0.77) *
-           math.pow(catchment['slope_gradient'], -.385)) / 60
+    # Time from start of rain to discharge peak [h]
+    tp = (storm_duration / 2 + 0.6 * 0.02 * math.pow(catchment['length_watercourse'], 0.77) *
+          math.pow(catchment['slope_gradient'], -.385)) / 60
 
     # Unit peakflow [m^3 / s]
-    q_p = 0.208 * catchment['area'] / t_p
-    q_r = np.arange(0, 3.1, 0.1)
-    Q = c(q_r[q_r <= 1] * q_p, q_p - ((q_r[q_r > 1] - 1) / 2 * q_p))
+    qp = 0.208 * catchment['area'] / tp
+    q_qp = np.arange(0, 3.1, 0.1)
+    q_uh = np.zeros(q_qp.shape)
+    q_uh[q_qp <= 1] = q_qp[q_qp <= 1] * qp
+    q_uh[q_qp > 1] = qp - ((q_qp[q_qp > 1] - 1) / 2 * qp)
+
 
 
 
