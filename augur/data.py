@@ -1,5 +1,64 @@
-from rasterstats import zonal_stats
+import math
+import pandas as pd
 import numpy as np
+from rasterstats import zonal_stats
+
+
+def reclassify_slope_gradients(catchment):
+    """
+    Reclassify the slope gradient to match the options available on the AUGUR tool.
+
+    Parameters
+    ----------
+    catchment: Pandas dataframe
+        Dataframe containing a field 'slope_gradient'.
+
+    Returns
+    -------
+    The dataframe with reclassified slope gradient values.
+    """
+    catchment.loc[catchment['slope_gradient'] <= 0.1, 'slope_gradient'] = 0.08
+    catchment.loc[(catchment['slope_gradient'] > 0.1) &
+                  (catchment['slope_gradient'] <= 0.5), 'slope_gradient'] = 0.3
+    catchment.loc[catchment['slope_gradient'] > 0.5, 'slope_gradient'] = 0.7
+
+    return catchment
+
+
+def get_soil_content(raster_file, polygon):
+    """
+    Extract the soil content from SoilGrid data.
+
+    Parameters
+    ----------
+    raster_file: str|Path
+        Path to the SoilGrid file.
+    polygon: geometry
+        Polygon for which to extract the soil properties.
+
+    Returns
+    -------
+    The soil fraction of clay/sand, for example ([0 .. 1]).
+    """
+    return 100 * zonal_stats(polygon, raster_file, nodata=-999)[0]['mean'] / 1000
+
+
+def get_soil_depth(raster_file, polygon):
+    """
+    Extract the soil depth from SoilGrid data.
+
+    Parameters
+    ----------
+    raster_file: str|Path
+        Path to the SoilGrid file.
+    polygon: geometry
+        Polygon for which to extract the soil properties.
+
+    Returns
+    -------
+    The soil depth in meters.
+    """
+    return zonal_stats(polygon, raster_file, nodata=-999)[0]['mean']
 
 
 def check_land_cover_total(catchment):
@@ -163,3 +222,34 @@ def cover_wc_bare(x):
 def cover_wc_cryo(x):
     """ Extract the percentage of glaciers from WorldCover. """
     return np.ma.count(x[x == 70]) / np.ma.count(x)
+
+
+def get_discharge_value_return_periods(annual_max, ret_periods=None):
+    """
+    Get the discharge values for the provided return periods.
+
+    Parameters
+    ----------
+    annual_max: Pandas serie
+        Series of annual maxima.
+    ret_periods: list
+        List of the desired return periods.
+
+    Returns
+    -------
+    A list of the discharge values for the given return periods. Default: [10, 20, 50]
+    """
+    if ret_periods is None:
+        ret_periods = [10, 30, 100]
+    y_means = annual_max.mean()
+    y_std = annual_max.std()
+    b = np.sqrt(6.0) / math.pi * y_std
+    a = y_means - b * np.euler_gamma
+
+    # Get precip values for different return periods
+    F_rps = np.ones(len(ret_periods)) - (np.ones(len(ret_periods)) / ret_periods)
+    u_rps = -np.log(-np.log(F_rps))
+
+    prec_rps = b * u_rps + a
+
+    return prec_rps
