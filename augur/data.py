@@ -253,3 +253,105 @@ def get_value_return_periods(annual_max, ret_periods=None):
     vals_rps = b * u_rps + a
 
     return vals_rps
+
+
+def classify_soil_type_augur(df):
+    """
+    Classify the soil type based on the soil depth, sand and clay (AUGUR approach).
+
+    Parameters
+    ----------
+    df: Pandas dataframe
+        Dataframe containing the soil depth, sand and clay fractions.
+
+    Returns
+    -------
+    Dataframe containing the soil type.
+
+    Notes
+    -----
+    The soil type is defined as follows:
+    - deep (> 0.4m) -> A
+    - sandy (< 0.4m) -> B
+    - superficial (low clay) -> C
+    - high clay content -> D
+    """
+    df['soil_type'] = ''
+    df.loc[(df['soil_depth'] >= 0.4), 'soil_type'] = 'A'
+    df.loc[(df['soil_depth'] < 0.4) &
+           (df['sand_fra'] >= 0.5), 'soil_type'] = 'B'
+    df.loc[(df['soil_depth'] < 0.4) &
+           (df['sand_fra'] < 0.5), 'soil_type'] = 'C'
+    df.loc[(df['clay_fra'] >= 0.4), 'soil_type'] = 'D'
+
+    return df
+
+
+def classify_soil_type_augur_params(df, thr_soil_depth, thr_sand_frac,
+                                    thr_clay_frac):
+    """
+    Classify the soil type based on the soil depth, sand and clay (AUGUR approach).
+
+    Parameters
+    ----------
+    df: Pandas dataframe
+        Dataframe containing the soil depth, sand and clay fractions.
+    thr_soil_depth: float
+        Threshold for the soil depth (class A vs B and C).
+    thr_sand_frac: float
+        Threshold for the sand fraction (class B vs C).
+    thr_clay_frac: float
+        Threshold for the clay fraction (class D).
+
+    Returns
+    -------
+    Dataframe containing the soil type.
+
+    Notes
+    -----
+    The soil type is defined as follows:
+    - deep (> 0.4m) -> A
+    - sandy (< 0.4m) -> B
+    - superficial (low clay) -> C
+    - high clay content -> D
+    """
+    df['soil_type'] = ''
+    df.loc[(df['soil_depth'] >= thr_soil_depth), 'soil_type'] = 'A'
+    df.loc[(df['soil_depth'] < thr_soil_depth) &
+           (df['sand_fra'] >= thr_sand_frac), 'soil_type'] = 'B'
+    df.loc[(df['soil_depth'] < thr_soil_depth) &
+           (df['sand_fra'] < thr_sand_frac), 'soil_type'] = 'C'
+    df.loc[(df['clay_fra'] >= thr_clay_frac), 'soil_type'] = 'D'
+
+    return df
+
+
+def classify_soil_type_usa(df):
+    """
+    Classify the soil type based on the soil depth, sand and clay (USA approach).
+    Based on the U.S. Department of Agriculture thresholds
+
+    Parameters
+    ----------
+    df: Pandas dataframe
+        Dataframe containing the soil depth, sand and clay fractions.
+
+    Returns
+    -------
+    Dataframe containing the soil type.
+    """
+    df['soil_type'] = ''
+    df.loc[(df['soil_depth'] >= 0.5) &
+           (df['clay_fra'] < 0.1), 'soil_type'] = 'A'
+    df.loc[(df['soil_depth'] >= 0.5) &
+           (df['clay_fra'] >= 0.1) &
+           (df['clay_fra'] < 0.2), 'soil_type'] = 'B'
+    df.loc[(df['soil_depth'] >= 0.5) &
+           (df['sand_fra'] < 0.5) &
+           (df['clay_fra'] >= 0.2) &
+           (df['clay_fra'] < 0.4), 'soil_type'] = 'C'
+    df.loc[(df['clay_fra'] >= 0.4) &
+           (df['sand_fra'] < 0.5), 'soil_type'] = 'D'
+    df.loc[(df['soil_depth'] < 0.5), 'soil_type'] = 'D'
+
+    return df
