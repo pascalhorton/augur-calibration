@@ -224,9 +224,9 @@ def cover_wc_cryo(x):
     return np.ma.count(x[x == 70]) / np.ma.count(x)
 
 
-def get_discharge_value_return_periods(annual_max, ret_periods=None):
+def get_value_return_periods(annual_max, ret_periods=None):
     """
-    Get the discharge values for the provided return periods.
+    Get the discharge/precip values for the provided return periods.
 
     Parameters
     ----------
@@ -237,7 +237,7 @@ def get_discharge_value_return_periods(annual_max, ret_periods=None):
 
     Returns
     -------
-    A list of the discharge values for the given return periods. Default: [10, 20, 50]
+    A list of the values for the given return periods. Default: [10, 30, 50]
     """
     if ret_periods is None:
         ret_periods = [10, 30, 100]
@@ -250,6 +250,6 @@ def get_discharge_value_return_periods(annual_max, ret_periods=None):
     F_rps = np.ones(len(ret_periods)) - (np.ones(len(ret_periods)) / ret_periods)
     u_rps = -np.log(-np.log(F_rps))
 
-    prec_rps = b * u_rps + a
+    vals_rps = b * u_rps + a
 
-    return prec_rps
+    return vals_rps
