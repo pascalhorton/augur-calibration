@@ -72,9 +72,9 @@ def check_land_cover_total(catchment):
     """
     total = catchment['cover_farmland'] + catchment['cover_pasture'] + \
             catchment['cover_forest'] + catchment['cover_settlement'] + \
-            catchment['cover_bare'] + catchment['cover_cryo']
+            catchment['cover_bare'] + catchment['cover_cryo'] + catchment['cover_water']
 
-    if total != 100:
+    if not math.isclose(total, 100):
         raise ValueError(f"The sum of land covers should be 100%. Here: {total}.")
 
 
