@@ -1,11 +1,11 @@
-from utils.utils_dataset_land_cover import get_land_cover
-from utils.utils_discharge import get_value_return_periods
 import geopandas as gpd
 import pandas as pd
 from pathlib import Path
 import warnings
 import yaml
 from shapely.errors import ShapelyDeprecationWarning
+
+import augur.data as agd
 
 with open('config.yaml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
@@ -40,11 +40,15 @@ df = pd.merge(df, df_stream_dist, on='ID')
 # Only keep relevant attributes
 df = df[['ID', 'area_calc', 'elev_mean', 'slope_mean', 'bedrk_dep', 'sand_fra',
          'silt_fra', 'clay_fra', 'grav_fra', 'oc_fra', 'name', 'river',
-         'lon', 'lat', 'country', 'gaps_post', 'dist_hup']]
+         'lon', 'lat', 'country', 'gaps_post', 'dist_hup', 'degimpact']]
 
 # Only keep catchments between 1 and 300 km2
 df = df[df.area_calc > 1]
 df = df[df.area_calc < 300]
+
+# Only keep catchments with no influence (u) or low influence (l)
+df = df[df.degimpact.isin(['u', 'l'])]
+
 df.reset_index(inplace=True, drop=True)
 
 # Convert units
@@ -59,7 +63,7 @@ for row in df.iterrows():
     precip_file = PATH_TS_PRECIP / f'ID_{catchment.ID}.csv'
     precip = pd.read_csv(precip_file, sep=';', usecols=[0, 22])
     annual_max_p = precip.groupby(['YYYY']).max()
-    p_rps = get_value_return_periods(annual_max_p['prec'], ret_periods=[10, 30, 100])
+    p_rps = agd.get_value_return_periods(annual_max_p['prec'], ret_periods=[10, 30, 100])
     df.at[row[0], 'p10'] = p_rps[0]
     df.at[row[0], 'p30'] = p_rps[1]
     df.at[row[0], 'p100'] = p_rps[2]
@@ -68,26 +72,26 @@ for row in df.iterrows():
     discharge_file = PATH_TS_DISCHARGE / f'ID_{catchment.ID}.csv'
     discharge = pd.read_csv(discharge_file, sep=';', usecols=[0, 5])
     annual_max_p = discharge.groupby(['YYYY']).max()
-    q_rps = get_value_return_periods(annual_max_p['qobs'], ret_periods=[10, 30, 100])
+    q_rps = agd.get_value_return_periods(annual_max_p['qobs'], ret_periods=[10, 30, 100])
     df.at[row[0], 'q10'] = q_rps[0]
     df.at[row[0], 'q30'] = q_rps[1]
     df.at[row[0], 'q100'] = q_rps[2]
 
     # Compute land cover
     shp = shp_catchments.loc[shp_catchments['ID'] == catchment.ID]
-    df.at[row[0], 'cover_forest'] = get_land_cover(
+    df.at[row[0], 'cover_forest'] = agd.get_land_cover(
         'worldcover', cover_file, shp, 'forest'),
-    df.at[row[0], 'cover_farmland'] = get_land_cover(
+    df.at[row[0], 'cover_farmland'] = agd.get_land_cover(
         'worldcover', cover_file, shp, 'farmland'),
-    df.at[row[0], 'cover_pasture'] = get_land_cover(
+    df.at[row[0], 'cover_pasture'] = agd.get_land_cover(
         'worldcover', cover_file, shp, 'pasture'),
-    df.at[row[0], 'cover_settlement'] = get_land_cover(
+    df.at[row[0], 'cover_settlement'] = agd.get_land_cover(
         'worldcover', cover_file, shp, 'settlement'),
-    df.at[row[0], 'cover_bare'] = get_land_cover(
+    df.at[row[0], 'cover_bare'] = agd.get_land_cover(
         'worldcover', cover_file, shp, 'bare'),
-    df.at[row[0], 'cover_cryo'] = get_land_cover(
+    df.at[row[0], 'cover_cryo'] = agd.get_land_cover(
         'worldcover', cover_file, shp, 'cryo'),
-    df.at[row[0], 'cover_water'] = get_land_cover(
+    df.at[row[0], 'cover_water'] = agd.get_land_cover(
         'worldcover', cover_file, shp, 'water'),
 
 
