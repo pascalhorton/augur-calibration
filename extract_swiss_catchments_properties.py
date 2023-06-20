@@ -1,10 +1,10 @@
-from utils.utils_dataset_soil import get_soil_content, get_soil_depth
-from utils.utils_dataset_land_cover import get_land_cover
 import glob
 import yaml
 from pathlib import Path
 import geopandas as gpd
 import pandas as pd
+
+import augur.data as agd
 
 with open('config.yaml') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
@@ -36,38 +36,38 @@ df = pd.DataFrame()
 for catchment in catchments_ch:
     s = pd.DataFrame.from_dict(
         {'id': [catchment.values[0][0]],
-         'clay_0_5': [get_soil_content(clay_0_5_file, catchment)],
-         'clay_5_15': [get_soil_content(clay_5_15_file, catchment)],
-         'sand_0_5': [get_soil_content(sand_0_5_file, catchment)],
-         'sand_5_15': [get_soil_content(sand_5_15_file, catchment)],
-         'depth': [get_soil_depth(depth_file, catchment)],
-         'cover_cci_forest': [get_land_cover(
+         'clay_0_5': [agd.get_soil_content(clay_0_5_file, catchment)],
+         'clay_5_15': [agd.get_soil_content(clay_5_15_file, catchment)],
+         'sand_0_5': [agd.get_soil_content(sand_0_5_file, catchment)],
+         'sand_5_15': [agd.get_soil_content(sand_5_15_file, catchment)],
+         'depth': [agd.get_soil_depth(depth_file, catchment)],
+         'cover_cci_forest': [agd.get_land_cover(
              'cci', cover_cci_file, catchment, 'forest')],
-         'cover_cci_farmland': [get_land_cover(
+         'cover_cci_farmland': [agd.get_land_cover(
              'cci', cover_cci_file, catchment, 'farmland')],
-         'cover_cci_pasture': [get_land_cover(
+         'cover_cci_pasture': [agd.get_land_cover(
              'cci', cover_cci_file, catchment, 'pasture')],
-         'cover_cci_settlement': [get_land_cover(
+         'cover_cci_settlement': [agd.get_land_cover(
              'cci', cover_cci_file, catchment, 'settlement')],
-         'cover_cci_bare': [get_land_cover(
+         'cover_cci_bare': [agd.get_land_cover(
              'cci', cover_cci_file, catchment, 'bare')],
-         'cover_cci_cryo': [get_land_cover(
+         'cover_cci_cryo': [agd.get_land_cover(
              'cci', cover_cci_file, catchment, 'cryo')],
-         'cover_cci_water': [get_land_cover(
+         'cover_cci_water': [agd.get_land_cover(
              'cci', cover_wc_file, catchment, 'water')],
-         'cover_wc_forest': [get_land_cover(
+         'cover_wc_forest': [agd.get_land_cover(
              'worldcover', cover_wc_file, catchment, 'forest')],
-         'cover_wc_farmland': [get_land_cover(
+         'cover_wc_farmland': [agd.get_land_cover(
              'worldcover', cover_wc_file, catchment, 'farmland')],
-         'cover_wc_pasture': [get_land_cover(
+         'cover_wc_pasture': [agd.get_land_cover(
              'worldcover', cover_wc_file, catchment, 'pasture')],
-         'cover_wc_settlement': [get_land_cover(
+         'cover_wc_settlement': [agd.get_land_cover(
              'worldcover', cover_wc_file, catchment, 'settlement')],
-         'cover_wc_bare': [get_land_cover(
+         'cover_wc_bare': [agd.get_land_cover(
              'worldcover', cover_wc_file, catchment, 'bare')],
-         'cover_wc_cryo': [get_land_cover(
+         'cover_wc_cryo': [agd.get_land_cover(
              'worldcover', cover_wc_file, catchment, 'cryo')],
-         'cover_wc_water': [get_land_cover(
+         'cover_wc_water': [agd.get_land_cover(
              'worldcover', cover_wc_file, catchment, 'water')],
          })
 
