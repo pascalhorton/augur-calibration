@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import augur.data as agd
 
+
 def get_default_cn_parameters(version='redcross'):
     """
     Get the default curve number parameters.
@@ -42,6 +43,25 @@ def get_default_cn_parameters(version='redcross'):
         raise ValueError(f"Unknown CN version: {version}.")
 
     return cns
+
+
+def create_cn_parameters_from_array(cns_array):
+    """
+    Create a dataframe with the curve number parameters from a numpy array.
+
+    Parameters
+    ----------
+    cns_array: numpy array
+        The curve number parameters.
+
+    Returns
+    -------
+    A dataframe with the curve number parameters.
+    """
+    return pd.DataFrame(cns_array,
+                        columns=['A', 'B', 'C', 'D'],
+                        index=['farmland', 'pasture', 'forest', 'settlement', 'debris'],
+                        dtype=np.int64)
 
 
 def compute_cn_factor(catchment, cns, soil_type):
