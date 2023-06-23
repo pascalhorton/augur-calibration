@@ -192,7 +192,7 @@ def get_unit_peakflow(area, t_p):
     if t_p <= 0:
         raise ValueError("The time to peak cannot be null or negative.")
 
-    return 0.208 * area / t_p
+    return 0.278 * area / t_p
 
 
 def get_unit_hydrograph(q_up, t_p):
