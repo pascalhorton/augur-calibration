@@ -271,7 +271,7 @@ def classify_soil_type_augur(df):
     Notes
     -----
     The soil type is defined as follows:
-    - deep (> 0.4m) -> A
+    - deep (>= 0.4m) -> A
     - sandy (< 0.4m) -> B
     - superficial (low clay) -> C
     - high clay content -> D
@@ -310,10 +310,10 @@ def classify_soil_type_augur_params(df, thr_soil_depth, thr_sand_frac,
     Notes
     -----
     The soil type is defined as follows:
-    - deep (> 0.4m) -> A
-    - sandy (< 0.4m) -> B
-    - superficial (low clay) -> C
-    - high clay content -> D
+    - deep (>= thr_soil_depth) -> A
+    - sandy (< thr_soil_depth & >= thr_sand_frac) -> B
+    - superficial (low clay) (< thr_soil_depth & < thr_sand_frac) -> C
+    - high clay content (>= thr_clay_frac) -> D
     """
     df['soil_type'] = ''
     df.loc[(df['soil_depth'] >= thr_soil_depth), 'soil_type'] = 'A'
