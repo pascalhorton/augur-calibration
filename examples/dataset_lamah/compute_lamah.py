@@ -8,37 +8,25 @@ CATCHMENTS_FILE = r'D:\Projects\2022 AUGUR+\Analyses\LamaH catchments\Lamah_stat
 PLOT_HYDROGRAPHS = False
 PARAMETER_SET = 3  # 1, 2 or 3
 
-# Thresholds for the soil type
-thr_soil_depth = 5.8  # original: 0.4
-thr_sand_frac = 0.44  # original: 0.5
-thr_clay_frac = 0.46  # original: 0.4
-
-
 if PARAMETER_SET == 1:
     # Original AUGUR values
     param_set = 'Original parameters'
     cns = agc.get_default_cn_parameters('redcross')
-    thr_soil_depth = 0.4
-    thr_sand_frac = 0.5
-    thr_clay_frac = 0.4
 
 elif PARAMETER_SET == 2:
     # AUGUR values (optimized by Omar)
     param_set = 'AUGUR parameters'
     cns = agc.get_default_cn_parameters('augur')
-    thr_soil_depth = 0.4
-    thr_sand_frac = 0.5
-    thr_clay_frac = 0.4
 
 elif PARAMETER_SET == 3:
     # Optimized using SCE-UA
     param_set = 'Optimized parameters'
     cns = pd.DataFrame(np.array([
-        [33, 45, 20, 38],
-        [32, 21, 52, 53],
-        [39, 26, 52, 44],
-        [64, 43, 67, 60],
-        [46, 66, 29, 30]
+        [10, 85, 28, 93],
+        [19, 75, 65, 50],
+        [40, 52, 40, 13],
+        [15, 32, 88, 58],
+        [23, 38, 21, 75]
     ]), columns=['A', 'B', 'C', 'D'])
     cns.index = ['farmland', 'pasture', 'forest', 'settlement', 'debris']
 
@@ -55,12 +43,12 @@ df.rename(columns={'area_calc': 'area',
                    }, inplace=True)
 
 # Soil types
-df = agd.classify_soil_type_augur_params(df, thr_soil_depth, thr_sand_frac,
-                                         thr_clay_frac)
+df = agd.classify_soil_type_augur(df)
 
 df = df[df.soil_type != '']
 df.reset_index(inplace=True, drop=True)
 
+rel_diffs = np.zeros((len(df), 3))
 diffs = np.zeros((len(df), 3))
 
 for i, catchment in df.iterrows():
@@ -78,9 +66,12 @@ for i, catchment in df.iterrows():
     # Get the peak discharge
     peak_q = hydrograph.max(axis=0)
 
-    diffs[i, 0] = 100 * (peak_q[0] - catchment.loc['q10']) / catchment.loc['q10']
-    diffs[i, 1] = 100 * (peak_q[1] - catchment.loc['q30']) / catchment.loc['q30']
-    diffs[i, 2] = 100 * (peak_q[2] - catchment.loc['q100']) / catchment.loc['q100']
+    rel_diffs[i, 0] = 100 * (peak_q[0] - catchment.loc['q10']) / catchment.loc['q10']
+    rel_diffs[i, 1] = 100 * (peak_q[1] - catchment.loc['q30']) / catchment.loc['q30']
+    rel_diffs[i, 2] = 100 * (peak_q[2] - catchment.loc['q100']) / catchment.loc['q100']
+    diffs[i, 0] = peak_q[0] - catchment.loc['q10']
+    diffs[i, 1] = peak_q[1] - catchment.loc['q30']
+    diffs[i, 2] = peak_q[2] - catchment.loc['q100']
 
     print(f'Peak discharge for {catchment["name"]}: {peak_q}')
 
@@ -91,12 +82,13 @@ print(f'RMSE: {rmse}')
 
 # Plot the relative differences as boxplots
 plt.figure()
-plt.boxplot(diffs)
+plt.boxplot(rel_diffs)
 plt.xticks([1, 2, 3], ['q10', 'q30', 'q100'])
 plt.ylabel('Relative difference [%]')
 plt.ylim([-100,500])
 plt.grid(axis='y')
 plt.title(param_set)
+plt.tight_layout()
+plt.savefig(f'lamah_{param_set}.png', dpi=300)
 plt.show()
-
 
